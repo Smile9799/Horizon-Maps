@@ -425,6 +425,37 @@ class NavEngine(private val ctx: Context, val prefs: Prefs, val map: MapBinding)
         return out
     }
 
+    // ---- trip planner (self-build addition: the sums are in TripPlan.kt, the screen in ui/TripPlanner.kt) ----
+    /** The trip planner is open. */
+    var tripPlannerOpen by mutableStateOf(false)
+
+    /** Call on the main thread before [planLeg], so planned stretches follow the same route settings (avoid tolls...) as real routes. */
+    fun prepareTripPlanning() = syncRoutePrefs()
+
+    /**
+     * One stretch of a planned trip, without touching the route on screen (blocking: call off the main thread). Online when
+     * there's a key and signal, otherwise from the downloaded maps. [departAtMs] in the future asks for the traffic usual then.
+     */
+    fun planLeg(from: LL, to: LL, departAtMs: Long = 0L): Route {
+        val haveOffline = OfflineRouter.installed(ctx)
+        if (!hasOnline && !haveOffline) throw IllegalStateException("Add a TomTom key or Mapbox token, or download an offline map, to plan routes")
+        val rs = if (haveOffline && (!hasOnline || !online())) OfflineRouter.routes(ctx, from, to)
+        else try {
+            try { netRoutes(from, to, false, departAtMs) }
+            catch (e: Exception) { if (departAtMs > 0L && !NavigationFallbackPolicy.shouldUseOffline(e)) netRoutes(from, to, false) else throw e }
+        } catch (e: Exception) {
+            if (haveOffline && NavigationFallbackPolicy.shouldUseOffline(e)) OfflineRouter.routes(ctx, from, to) else throw e
+        }
+        return rs.firstOrNull() ?: throw IllegalStateException("No route found")
+    }
+
+    /** Starts a planned trip from where you are: to [dest] by way of [stops], in that order. */
+    fun startPlannedTrip(dest: Place, stops: List<Place>) {
+        tripPlannerOpen = false
+        via = stops
+        startRoute(dest, keepVia = true)
+    }
+
     /** The turns a driver actually makes on [r]: every step but "carry on", the start and the end. */
     private fun turnCount(r: Route): Int = r.steps.count { s ->
         val m = s.maneuver.uppercase()
@@ -1518,7 +1549,8 @@ class NavEngine(private val ctx: Context, val prefs: Prefs, val map: MapBinding)
     var dataUpdates by mutableStateOf<List<String>>(emptyList())
 
     fun checkDataUpdates() {
-        if (packBusy) return
+        // Self-build: with the updater off, nothing is checked in the background; Settings > Offline maps still checks when opened.
+        if (!Updater.enabled || packBusy) return
         val nowMs = System.currentTimeMillis()
         if (nowMs - lastAutoDataCheck < autoCheckGapMs) return
         lastAutoDataCheck = nowMs

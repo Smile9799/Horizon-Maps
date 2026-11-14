@@ -537,6 +537,7 @@ private fun MapScreen(engine: NavEngine, onSettings: () -> Unit) {
             exit = slideOutHorizontally(targetOffsetX = { if (mir) -it else it }) + fadeOut(),
         ) { OptionsSheet(engine, shareEta, wide = !narrow && maxWidth >= 860.dp && maxHeight < maxWidth, onSettings = { sheet = false; onSettings() }) { sheet = false } }
         if (engine.stopsEditor) StopsDialog(engine, onClose = { engine.stopsEditor = false })
+        if (engine.tripPlannerOpen) TripPlannerDialog(engine, onClose = { engine.tripPlannerOpen = false })
     }
 }
 
@@ -633,6 +634,7 @@ private fun OptionsSheet(engine: NavEngine, shareEta: () -> Unit, wide: Boolean 
                     if (engine.route != null) TileSpec(Icons.Rounded.LocalParking, L.t("Parking"), Color(0xFF4C8DFF), find("parking")) else null,
                     if (engine.route != null) TileSpec(Icons.Rounded.Apartment, L.t("Services"), Color(0xFF12A4B4), find("services")) else null,
                     if (engine.dest != null) TileSpec(Icons.Rounded.Place, L.t("Park at end"), Color(0xFFEA4335), { engine.loadNearby("parking", true); close() }) else null,
+                    TileSpec(Icons.Rounded.Route, L.t("Trip planner"), c.accent, { engine.tripPlannerOpen = true; close() }),
                 )
                 SheetHeading(if (engine.route != null) L.t("Find along the route") else L.t("Find nearby"))
                 WideTiles(4, finds)
@@ -1363,6 +1365,8 @@ private fun ImmQuick(engine: NavEngine, showSaved: Boolean = true) {
                 Text(L.t("SAVED & RECENT"), color = c.sub, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp, modifier = Modifier.weight(1f))
                 if (saved.size > 3) Text(if (showAll) L.t("Less") else L.t("All {0}", saved.size), color = c.accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { showAll = !showAll }.padding(horizontal = 10.dp, vertical = 8.dp))
+                Text(L.t("Trip planner"), color = c.accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { engine.tripPlannerOpen = true }.padding(horizontal = 10.dp, vertical = 8.dp))
                 Row(Modifier.clip(RoundedCornerShape(12.dp)).clickable { adding = true }.padding(horizontal = 10.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Rounded.Add, null, tint = c.accent, modifier = Modifier.size(18.dp))
                     Text(L.t("Add"), color = c.accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 2.dp))
