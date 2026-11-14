@@ -83,6 +83,13 @@ class TripMathTest {
         assertTrue(TripPlanStore.parse("not json").isEmpty())
     }
 
+    @Test fun fuelUseCanBeTypedAsKmPerLitre() {
+        assertEquals(8.0, TripMath.fuelUseTyped(12.5, true), 1e-9)      // 12.5 km/L is 8 L/100 km
+        assertEquals(12.5, TripMath.fuelUseShown(8.0, true), 1e-9)
+        assertEquals(8.0, TripMath.fuelUseTyped(8.0, false), 1e-9)
+        assertEquals(0.0, TripMath.fuelUseTyped(0.0, true), 0.0)
+    }
+
     @Test fun fuelUseComesFromTheAppsMpgSetting() {
         assertEquals(7.06, TripMath.l100FromMpg(40.0), 0.01)
         assertEquals(0.0, TripMath.l100FromMpg(null), 0.0)

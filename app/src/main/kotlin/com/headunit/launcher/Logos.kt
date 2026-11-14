@@ -67,6 +67,7 @@ object Logos {
         val n = norm(p.name)
         if (n.isEmpty()) return null
         // the longest chain name the place's name starts with ("bp pulse" before "bp")
+        Region.zaChain(n)?.let { return it }
         return chains.entries.filter { n == it.key || (it.key !in exactOnly && n.startsWith(it.key + " ")) }.maxByOrNull { it.key.length }?.value
     }
 

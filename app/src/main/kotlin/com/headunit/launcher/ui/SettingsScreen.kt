@@ -686,6 +686,7 @@ private fun SoundSection(prefs: Prefs, engine: NavEngine) {
             L.t("The whole app: directions, screens and Android Auto. Phone's language uses English when the phone's isn't one of these")) {
             prefs.put(PreferenceKeys.APP_LANG, it); engine.setLanguage(it)
         }
+        ZaWordingToggle(prefs)
         // a language that isn't there yet: asked for on GitHub (an issue, filled in, sent from the browser)
         var langReq by remember { mutableStateOf(false) }
         SItem(L.t("Missing your language?"), L.t("Ask for it: the request goes to GitHub, where you can see when it's added")) {
@@ -944,7 +945,8 @@ private fun FuelSection(prefs: Prefs, engine: NavEngine) {
         else SFieldItem(L.t("Fuel use (litres per 100 km)"), prefs.s(PreferenceKeys.FUELMPG, "").toDoubleOrNull()?.takeIf { it > 0 }?.let { fmt1(282.481 / it) } ?: "", placeholder = L.t("e.g. 6.3"), number = true) { s ->
             prefs.put(PreferenceKeys.FUELMPG, num(s).toDoubleOrNull()?.takeIf { it > 0 }?.let { String.format(java.util.Locale.US, "%.2f", 282.481 / it) } ?: "")
         }
-        SFieldItem(if (mi) L.t("Fuel price (pence per litre)") else L.t("Fuel price (cents per litre)"), prefs.s(PreferenceKeys.FUELPPL, ""), placeholder = L.t("e.g. 139.9"), number = true) { s -> prefs.put(PreferenceKeys.FUELPPL, s.filter { it.isDigit() || it == '.' }.take(6)) }
+        if (!mi && com.headunit.launcher.Region.za) RandFuelPrice(prefs)
+        else SFieldItem(if (mi) L.t("Fuel price (pence per litre)") else L.t("Fuel price (cents per litre)"), prefs.s(PreferenceKeys.FUELPPL, ""), placeholder = L.t("e.g. 139.9"), number = true) { s -> prefs.put(PreferenceKeys.FUELPPL, s.filter { it.isDigit() || it == '.' }.take(6)) }
     }
 }
 

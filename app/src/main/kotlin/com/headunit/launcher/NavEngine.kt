@@ -606,6 +606,7 @@ class NavEngine(private val ctx: Context, val prefs: Prefs, val map: MapBinding)
     init {
         // the language for directions (Settings > Sound & voice > Language): before the voice starts, so it starts in it
         try { L.set(prefs.s(PreferenceKeys.APP_LANG, "auto")) } catch (e: Exception) { }
+        Region.init(prefs)
         // offline mode (Settings > Offline maps): set before anything goes online
         Net.offline = prefs.b(PreferenceKeys.OFFLINE_MODE, false)
         mapboxOffline(Net.offline)

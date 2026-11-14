@@ -121,6 +121,13 @@ object TripMath {
         return best.coerceIn(0, stops.size)
     }
 
+    /**
+     * Fuel use the way it's typed and shown: litres per 100 km as it is, or (with [kmPerL]) as kilometres per litre, which is
+     * 100 divided by it. The two go both ways with the same sum, and nothing (0) stays nothing.
+     */
+    fun fuelUseShown(l100: Double, kmPerL: Boolean): Double = if (!kmPerL) l100 else if (l100 > 0) 100.0 / l100 else 0.0
+    fun fuelUseTyped(value: Double, kmPerL: Boolean): Double = fuelUseShown(value, kmPerL)
+
     /** Litres per 100 km from the app's own fuel economy setting (kept as miles per UK gallon), or 0 when it isn't set. */
     fun l100FromMpg(mpg: Double?): Double = if (mpg != null && mpg > 0) 282.481 / mpg else 0.0
 }

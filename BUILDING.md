@@ -13,7 +13,11 @@ Compared with upstream (`benbishop028-arch/Horizon-Maps`):
 - **No background check for newer offline map data.** It only looks when you open Settings › Offline maps.
 - **"Send on GitHub" buttons open this fork's issues** (`FEEDBACK_REPO`), not upstream's.
 - **Trip planner** (new): plan a long drive with fuel, rest, meal and overnight stops, a timeline and the fuel cost.
-  Code: `TripPlan.kt`, `ui/TripPlanner.kt`, tests in `TripMathTest.kt`.
+  Fuel use can be typed as litres per 100 km or km per litre. Code: `TripPlan.kt`, `ui/TripPlanner.kt`, tests in `TripMathTest.kt`.
+- **South African touches** (new, only active in South Africa): prices in rand, the fuel price entered in rand per litre,
+  South African wording on screen and in spoken directions (robots, circles, freeways, trucks; switch it off in
+  Settings › Sound & voice), South Africa's general speed limits where none is mapped, and logos for local chains.
+  Code: `Region.kt`, `ui/RegionZa.kt`, tests in `ZaWordingTest.kt`.
 
 Still pointing at upstream: offline map packs download from the upstream author's GitHub releases when you tap download.
 

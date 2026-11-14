@@ -1,5 +1,6 @@
 # Android / Gradle build output
 .gradle/
+.kotlin/
 **/build/
 local.properties
 .idea/

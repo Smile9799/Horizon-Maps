@@ -156,7 +156,7 @@ class MapBinding(private val ctx: Context, fast: Boolean = false, res: Float = 1
         val opts = MapInitOptions(
             context = ctx,
             mapOptions = MapOptions.Builder().applyDefaultParams(ctx).pixelRatio(pr).build(),
-            cameraOptions = CameraOptions.Builder().center(Point.fromLngLat(-0.1276, 51.5072)).zoom(14.0).pitch(55.0).build(),
+            cameraOptions = CameraOptions.Builder().center(if (Region.za) Point.fromLngLat(28.0473, -26.2041) else Point.fromLngLat(-0.1276, 51.5072)).zoom(14.0).pitch(55.0).build(),
             // the phone moves the map between pages (texture view, can be clipped to round corners); the car draws straight to a surface
             textureView = !fast,
             // no style yet: it's chosen by the engine (and needs a token first)

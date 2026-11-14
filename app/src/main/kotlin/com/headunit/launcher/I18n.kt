@@ -45,7 +45,7 @@ object L {
     val en: Boolean get() = lang == "en"
 
     fun t(text: String, vararg args: Any?): String {
-        val s = if (lang == "en") text else (table[lang]?.get(text) ?: text)
+        val s = if (lang == "en") Region.say(text) else (table[lang]?.get(text) ?: text)
         if (args.isEmpty()) return s
         var out = s
         for (i in args.indices) out = out.replace("{$i}", args[i]?.toString() ?: "")

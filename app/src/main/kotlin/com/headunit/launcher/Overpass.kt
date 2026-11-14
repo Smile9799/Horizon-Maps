@@ -152,6 +152,15 @@ object Overpass {
                 "living_street" -> 10 * mph
                 else -> 15 * mph
             }
+            // South Africa's general limits: 120 on freeways, 100 on other roads outside towns, 60 in built-up areas
+            "ZA" -> when (base) {
+                "motorway" -> if (link) 80 * kmh else 120 * kmh
+                "trunk", "primary", "secondary", "tertiary" -> if (link || lit) 60 * kmh else 100 * kmh
+                "unclassified" -> if (lit) 60 * kmh else 80 * kmh
+                "residential" -> 60 * kmh
+                "living_street" -> 20 * kmh
+                else -> 20 * kmh
+            }
             else -> when (base) {
                 "motorway" -> if (link) 60 * kmh else 130 * kmh
                 "trunk", "primary" -> if (link) 60 * kmh else if (lit) 50 * kmh else 100 * kmh
@@ -501,8 +510,8 @@ object Overpass {
     fun priceText(raw: String?): String? {
         val v = raw?.trim()?.takeIf { it.isNotEmpty() } ?: return null
         val first = v.split(';').first().trim()
-        val m = Regex("""^([£€$]?)\s*(\d+(?:\.\d+)?)\s*([A-Z]{3})?\s*(?:/|per)\s*(hour|hr|h|day|d|night)$""", RegexOption.IGNORE_CASE).find(first) ?: return null
-        val sym = m.groupValues[1].ifBlank { when (m.groupValues[3].uppercase()) { "GBP" -> "£"; "EUR" -> "€"; "USD", "AUD", "CAD", "NZD" -> "$"; else -> "" } }
+        val m = Regex("""^([R£€$]?)\s*(\d+(?:\.\d+)?)\s*([A-Z]{3})?\s*(?:/|per)\s*(hour|hr|h|day|d|night)$""", RegexOption.IGNORE_CASE).find(first) ?: return null
+        val sym = m.groupValues[1].ifBlank { when (m.groupValues[3].uppercase()) { "GBP" -> "£"; "EUR" -> "€"; "ZAR" -> "R"; "USD", "AUD", "CAD", "NZD" -> "$"; else -> "" } }
         val per = when (m.groupValues[4].lowercase()) { "day", "d" -> "day"; "night" -> "night"; else -> "hr" }
         val num = m.groupValues[2].toDoubleOrNull() ?: return null
         val amount = if (num % 1.0 == 0.0) num.toInt().toString() else String.format(java.util.Locale.UK, "%.2f", num)

@@ -97,7 +97,7 @@ private fun kindTint(k: String): Color = when (k) {
 }
 
 private fun money(v: Double): String = try {
-    java.text.NumberFormat.getCurrencyInstance(Locale.getDefault()).apply { maximumFractionDigits = 0 }.format(v)
+    java.text.NumberFormat.getCurrencyInstance(com.headunit.launcher.Region.currencyLocale(false)).apply { maximumFractionDigits = 0 }.format(v)
 } catch (e: Exception) { v.roundToInt().toString() }
 
 private fun litres(v: Double): String = if (v < 10) String.format(Locale.getDefault(), "%.1f L", v) else "${v.roundToInt()} L"
@@ -210,7 +210,9 @@ private fun androidx.compose.foundation.layout.ColumnScope.TripEditor(engine: Na
     var foundKind by remember { mutableStateOf("") }
     var finding by remember { mutableStateOf(false) }
     var name by remember(plan.id) { mutableStateOf(plan.name) }
-    var l100 by remember(plan.id) { mutableStateOf(numText(plan.l100)) }
+    // fuel use typed as litres per 100 km or as km per litre, whichever you think in (remembered for next time)
+    var kmPerL by remember { mutableStateOf(engine.prefs.b(KM_PER_L_KEY, false)) }
+    var l100 by remember(plan.id) { mutableStateOf(numText(TripMath.fuelUseShown(plan.l100, kmPerL))) }
     var price by remember(plan.id) { mutableStateOf(numText(plan.price)) }
     var tank by remember(plan.id) { mutableStateOf(numText(plan.tankL)) }
 
@@ -249,8 +251,14 @@ private fun androidx.compose.foundation.layout.ColumnScope.TripEditor(engine: Na
 
         // ---- fuel
         Heading(L.t("FUEL"))
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(L.t("Fuel use in"), color = c.sub, fontSize = 13.sp, modifier = Modifier.padding(end = 4.dp))
+            for ((label, perL) in listOf(L.t("Litres per 100 km") to false, L.t("Km per litre") to true)) Pill(label, kmPerL == perL, {
+                if (kmPerL != perL) { kmPerL = perL; engine.prefs.put(KM_PER_L_KEY, perL); l100 = numText(TripMath.fuelUseShown(plan.l100, perL)) }
+            })
+        }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            NumField(L.t("Litres per 100 km"), l100, "7.5") { l100 = it; onChange(plan.copy(l100 = num(it))) }
+            NumField(if (kmPerL) L.t("Km per litre") else L.t("Litres per 100 km"), l100, if (kmPerL) "13.5" else "7.5") { l100 = it; onChange(plan.copy(l100 = TripMath.fuelUseTyped(num(it), kmPerL))) }
             NumField(L.t("Price per litre"), price, "21.50") { price = it; onChange(plan.copy(price = num(it))) }
             NumField(L.t("Tank size (litres)"), tank, "60") { tank = it; onChange(plan.copy(tankL = num(it))) }
         }
@@ -337,6 +345,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.TripEditor(engine: Na
 }
 
 private const val MAX_STOPS = 12
+private const val KM_PER_L_KEY = "trip_kmperl"
 
 private fun warningText(w: TripWarning, plan: TripPlan): String {
     val to = plan.stops.getOrNull(w.leg)?.place?.name ?: plan.dest?.name ?: L.t("the end")
