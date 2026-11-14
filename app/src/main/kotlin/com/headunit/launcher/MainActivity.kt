@@ -301,7 +301,7 @@ private fun StartupCrashPage(report: String, onRetry: () -> Unit) {
         androidx.compose.material3.Text("Sorry about that. Sending the report below lets it be fixed for this head unit. Nothing personal is in it.", color = fg.copy(alpha = 0.75f), fontSize = 15.sp)
         androidx.compose.foundation.layout.Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp)) {
             androidx.compose.material3.Button({
-                val url = "https://github.com/${BuildConfig.UPDATE_REPO}/issues/new?title=" + android.net.Uri.encode("Crash on start: ${Build.MANUFACTURER} ${Build.MODEL}") + "&body=" + android.net.Uri.encode(report.take(5000))
+                val url = "https://github.com/${BuildConfig.FEEDBACK_REPO}/issues/new?title=" + android.net.Uri.encode("Crash on start: ${Build.MANUFACTURER} ${Build.MODEL}") + "&body=" + android.net.Uri.encode(report.take(5000))
                 try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                 catch (e: Exception) { android.widget.Toast.makeText(ctx, "No browser on this unit: use Copy instead", android.widget.Toast.LENGTH_LONG).show() }
             }) { androidx.compose.material3.Text("Send on GitHub") }

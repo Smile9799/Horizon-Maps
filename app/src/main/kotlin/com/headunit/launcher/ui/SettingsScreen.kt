@@ -1271,7 +1271,7 @@ private fun FeedbackDialog(engine: NavEngine, onClose: () -> Unit) {
                     val title = note.lineSequence().firstOrNull()?.take(80)?.ifBlank { null } ?: L.t("Report from Horizon Nav {0}", com.headunit.launcher.BuildConfig.VERSION_NAME)
                     // a link has a length limit, so a very long report is cut down (Copy always has all of it)
                     val body = engine.feedbackReport(note).take(5000)
-                    val url = "https://github.com/${BuildConfig.UPDATE_REPO}/issues/new?title=" + android.net.Uri.encode(title) + "&body=" + android.net.Uri.encode(body)
+                    val url = "https://github.com/${BuildConfig.FEEDBACK_REPO}/issues/new?title=" + android.net.Uri.encode(title) + "&body=" + android.net.Uri.encode(body)
                     try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     catch (e: Exception) { engine.toast(L.t("No browser on this unit: use Copy instead"), 3500) }
                     onClose()
@@ -1320,7 +1320,7 @@ private fun LanguageRequestDialog(engine: NavEngine, onClose: () -> Unit) {
                         append("_Sent from Settings › Sound & voice › Request a language_")
                     }
                     val title = "Language request: " + want
-                    val url = "https://github.com/${BuildConfig.UPDATE_REPO}/issues/new?title=" + android.net.Uri.encode(title) + "&body=" + android.net.Uri.encode(body)
+                    val url = "https://github.com/${BuildConfig.FEEDBACK_REPO}/issues/new?title=" + android.net.Uri.encode(title) + "&body=" + android.net.Uri.encode(body)
                     try { ctx.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     catch (e: Exception) { engine.toast(L.t("No browser on this unit: use Copy instead"), 3500) }
                     onClose()

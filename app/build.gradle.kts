@@ -18,7 +18,7 @@ android {
         minSdk = 26
         targetSdk = 34
         // each GitHub build gets a higher version number, so Android always treats a new APK as an update
-        val run = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 0
+        val run = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: (findProperty("buildNumber") as String?)?.toIntOrNull() ?: 0
         versionCode = 100 + run
         versionName = "1.0.$run"
         resValue("string", "app_name", "Horizon Nav")
@@ -62,7 +62,11 @@ android {
             buildConfigField("String", "TOMTOM_API_KEY", "\"\"")
             buildConfigField("String", "DEFAULT_MAP", "\"mapbox\"")
             // where the build's "publish" option puts new versions (the "app" release); the app checks it for updates
-            buildConfigField("String", "UPDATE_REPO", "\"benbishop028-arch/Horizon-Maps\"")
+            // Self-build: left blank, which switches the in-app updater off entirely (no update checks, no APK downloads).
+            // New versions come from merging upstream and rebuilding. Set it to "owner/repo" to turn the updater back on.
+            buildConfigField("String", "UPDATE_REPO", "\"\"")
+            // where the "Send on GitHub" feedback and crash-report buttons open a new issue
+            buildConfigField("String", "FEEDBACK_REPO", "\"Smile9799/Horizon-Maps\"")
             // the APK file the updater looks for in that release
             buildConfigField("String", "UPDATE_APK", "\"HorizonNav-public.apk\"")
         }
@@ -103,6 +107,8 @@ dependencies {
 
     // Small, fast JVM tests for camera and GPS decision policies; these don't require a device.
     testImplementation("junit:junit:4.13.2")
+    // the real JSON classes for tests of saved data (the ones on a device are only empty stand-ins in JVM tests)
+    testImplementation("org.json:json:20240303")
 }
 
 // After a release build, put the APK in one folder with a clear name (HorizonNav-public.apk), where the GitHub build picks it up.
